@@ -14,7 +14,7 @@ import numpy
 
 # import cv2  # not faster then PIL
 
-version = 2.87
+version = 2.88
 
 avif_supported = False
 jxl_supported = False

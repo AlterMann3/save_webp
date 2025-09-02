@@ -3,6 +3,8 @@
 # imagecodecs   # pillow-jxl-plugin is simpler
 
 numpy
+piexif
+imagecodecs
 pillow
 pillow-avif-plugin
 pillow-jxl-plugin

@@ -212,6 +212,7 @@ Once I feel like I don't have time to work on it, I will gladly transfer ownersh
 
 TODO:
 
+- [ ] UI: add this node in the list when you drag the output slot out
 - [ ] WebP: explore method values 0-6 and test filesize vs save time
 - [ ] WebP: quality has an impact on both lossy and lossless, more testing needed
 - [ ] review accepted parameters at https://pillow.readthedocs.io/en/stable/handbook/image-file-formats.html to improve TIFF and other formats
@@ -221,8 +222,11 @@ TODO:
 - [ ] keep same counter if extension changes?
 - [ ] files will be out of order if prefixes change... that is expected, but is this what we want?
 - [x] PIL.Image doesn't respect compress_level value and always output max 9 compressed images -> when optimize_image = True! So we turn that off for PNG
-- [x] TODO: test import cv2 / OpenCV: https://github.com/python-pillow/Pillow/issues/5986 -> not faster then PIL
+- [x] test import cv2 / OpenCV: https://github.com/python-pillow/Pillow/issues/5986 -> not faster then PIL
 
+
+### release 2.88 💾
+- updated pyproject.toml and README.md
 
 ### release 2.87 💾
 - finally! right-click any node with IMAGE output adds "Add SaveImageExtended" option
