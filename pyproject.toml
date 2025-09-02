@@ -12,4 +12,4 @@ Repository = "https://github.com/audioscavenger/save-image-extended-comfyui"
 [tool.comfy]
 PublisherId = "audioscavenger"
 DisplayName = "save-image-extended-comfyui"
-Icon = ""
+Icon = "💾"

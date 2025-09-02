@@ -57,6 +57,71 @@ original_locale = locale.setlocale(locale.LC_TIME, '')
 
 # class SaveImageExtended -------------------------------------------------------------------------------
 class SaveImageExtended:
+  """
+  INPUT_TYPES Return a dictionary which contains config for all input fields.
+  Some types (string): "MODEL", "VAE", "CLIP", "CONDITIONING", "LATENT", "IMAGE", "INT", "STRING", "FLOAT".
+  Input types "INT", "STRING" or "FLOAT" are special values for fields on the node.
+  The type can be a list for selection.
+  
+  Returns: `dict`:
+      - Key input_fields_group (`string`): Can be either required, hidden or optional. A node class must have property `required`
+      - Value input_fields (`dict`): Contains input fields config:
+          * Key field_name (`string`): Name of a entry-point method's argument
+          * Value field_config (`tuple`):
+              + First value is a string indicate the type of field or a list for selection.
+              + Secound value is a config for type "INT", "STRING" or "FLOAT".
+  """
+  @classmethod
+  def INPUT_TYPES(self):
+    # this is checked by ComfyUI/execution.py: validate_inputs(prompt, item, validated):
+    # must also define VALIDATE_INPUTS(self) so we can fill in missing inputs when new inputs are added by new versions
+    return {
+      'required': {
+        'images': ('IMAGE', ),
+        'filename_prefix': ('STRING', {'default': self.filename_prefix, 'multiline': False, 'tooltip': "Fixed string prefixed to file name"}),
+        'filename_keys': ('STRING', {'default': self.filename_keys, 'multiline': True, 'tooltip': "Comma separated string with sampler parameters to add to filename. \n* Example: `sampler_name, scheduler, cfg, denoise` Added to filename in written order. \n* Example: also accepts `vae_name` `model_name` (upscale model), `ckpt_name` (checkpoint). \n* `resolution`  also works. \n\n* ANY parameter name of any node will work. The same applies to `foldername_keys`"}),
+        'foldername_prefix': ('STRING', {'default': self.foldername_prefix, 'multiline': False, 'tooltip': "Fixed string prefixed to subfolders"}),
+        'foldername_keys': ('STRING', {'default': self.foldername_keys, 'multiline': True, 'tooltip': "Same rules as for `filename_keys`. Create subfolders by using `/` or `../` etc"}),
+        'delimiter': ('STRING', {'default': self.delimiter, 'multiline': False, 'tooltip': "Any string you like. You can also use `/` to create subfolders"}),
+        'save_job_data': ([
+          'disabled', 
+          'prompt', 
+          'basic, prompt', 
+          'basic, sampler, prompt', 
+          'basic, models, sampler, prompt'
+        ], {'default': self.save_job_data, 'tooltip': "Saves information about each job as entries in a `jobs.json` text file, under the generated subfolder. \nMultiple options for its content: `prompt`, `basic data`, `sampler settings`, `loaded models`"}),
+        'job_data_per_image': ('BOOLEAN', {"default": self.job_data_per_image, 'tooltip': "Saves individual job data file per image"}),
+        'job_custom_text': ('STRING', {'default': self.job_custom_text, 'multiline': False, 'tooltip': "Custom string to save along with the job data"}),
+        'save_metadata': ('BOOLEAN', {'default': self.save_metadata, 'tooltip': "Saves metadata into the image"}),
+        'counter_digits': ('INT', {
+          "default": self.counter_digits, 
+          "min": 0, 
+          "max": 8, 
+          "step": 1,
+          "display": "silder",
+          'tooltip': "Number of digits used for the image counter. `3` = image_001.png, based on highest number in the subfolder, ignores gaps. **Can be disabled** when == 0"
+         }),
+        'counter_position': (self.counter_positions, {'default': self.counter_position, 'tooltip': "Image counter postition: image_001.png or 001_image.png"}),
+        'one_counter_per_folder': ('BOOLEAN', {'default': self.one_counter_per_folder, 'tooltip': "deprecated but I cannot remove it of all your saved prompts will break"}),
+        'image_preview': ('BOOLEAN', {'default': self.image_preview, 'tooltip': "Turns the image preview on and off"}),
+        'output_ext': (self.output_exts, {'default': self.output_ext, 'tooltip': "File extension: WEBP by default, AVIF, PNG, JXL, JPG, etc"}),
+        'quality': ('INT', {
+          "default": self.quality, 
+          "min": 0, 
+          "max": 100, 
+          "step": 1,
+          "display": "silder",
+          'tooltip': "Quality for JPEG/JXL/WebP/AVIF/J2K formats; Quality is relative to each format. \n* Example: AVIF 60 is same quality as WebP 90. \n* PNG compression is fixed at 4 and not affected by this. PNG compression times skyrocket above level 4 for zero benefits on filesize."
+        }),
+        'named_keys': ('BOOLEAN', {'default': self.named_keys, 'tooltip': "Prefix each value by its key name. Example: prefix-seed=123456-width=1024-cfg=5.0-0001.avif"}),
+      },
+      'optional': {
+        'positive_text_opt': ('STRING', {'forceInput': True, 'tooltip': "Optional string saved as `positive_text_opt` in job.json when `save_job_data`=True"}),
+        'negative_text_opt': ('STRING', {'forceInput': True, 'tooltip': "Optional string saved as `negative_text_opt` in job.json when `save_job_data`=True"}),
+                    },
+      'hidden': {'prompt': 'PROMPT', 'extra_pnginfo': 'EXTRA_PNGINFO'},
+    }
+
   RETURN_TYPES = ()
   FUNCTION = 'save_images'
   OUTPUT_NODE = True
@@ -136,70 +201,6 @@ ComfyUI can only load PNG and WebP at the moment, AVIF is a PR that was sadly dr
     self.output_dir = folder_paths.get_output_directory()
     self.prefix_append = ''
   
-  """
-  INPUT_TYPES Return a dictionary which contains config for all input fields.
-  Some types (string): "MODEL", "VAE", "CLIP", "CONDITIONING", "LATENT", "IMAGE", "INT", "STRING", "FLOAT".
-  Input types "INT", "STRING" or "FLOAT" are special values for fields on the node.
-  The type can be a list for selection.
-  
-  Returns: `dict`:
-      - Key input_fields_group (`string`): Can be either required, hidden or optional. A node class must have property `required`
-      - Value input_fields (`dict`): Contains input fields config:
-          * Key field_name (`string`): Name of a entry-point method's argument
-          * Value field_config (`tuple`):
-              + First value is a string indicate the type of field or a list for selection.
-              + Secound value is a config for type "INT", "STRING" or "FLOAT".
-  """
-  @classmethod
-  def INPUT_TYPES(self):
-    # this is checked by ComfyUI/execution.py: validate_inputs(prompt, item, validated):
-    # must also define VALIDATE_INPUTS(self) so we can fill in missing inputs when new inputs are added by new versions
-    return {
-      'required': {
-        'images': ('IMAGE', ),
-        'filename_prefix': ('STRING', {'default': self.filename_prefix, 'multiline': False, 'tooltip': "Fixed string prefixed to file name"}),
-        'filename_keys': ('STRING', {'default': self.filename_keys, 'multiline': True, 'tooltip': "Comma separated string with sampler parameters to add to filename. \n* Example: `sampler_name, scheduler, cfg, denoise` Added to filename in written order. \n* Example: also accepts `vae_name` `model_name` (upscale model), `ckpt_name` (checkpoint). \n* `resolution`  also works. \n\n* ANY parameter name of any node will work. The same applies to `foldername_keys`"}),
-        'foldername_prefix': ('STRING', {'default': self.foldername_prefix, 'multiline': False, 'tooltip': "Fixed string prefixed to subfolders"}),
-        'foldername_keys': ('STRING', {'default': self.foldername_keys, 'multiline': True, 'tooltip': "Same rules as for `filename_keys`. Create subfolders by using `/` or `../` etc"}),
-        'delimiter': ('STRING', {'default': self.delimiter, 'multiline': False, 'tooltip': "Any string you like. You can also use `/` to create subfolders"}),
-        'save_job_data': ([
-          'disabled', 
-          'prompt', 
-          'basic, prompt', 
-          'basic, sampler, prompt', 
-          'basic, models, sampler, prompt'
-        ], {'default': self.save_job_data, 'tooltip': "Saves information about each job as entries in a `jobs.json` text file, under the generated subfolder. \nMultiple options for its content: `prompt`, `basic data`, `sampler settings`, `loaded models`"}),
-        'job_data_per_image': ('BOOLEAN', {"default": self.job_data_per_image, 'tooltip': "Saves individual job data file per image"}),
-        'job_custom_text': ('STRING', {'default': self.job_custom_text, 'multiline': False, 'tooltip': "Custom string to save along with the job data"}),
-        'save_metadata': ('BOOLEAN', {'default': self.save_metadata, 'tooltip': "Saves metadata into the image"}),
-        'counter_digits': ('INT', {
-          "default": self.counter_digits, 
-          "min": 0, 
-          "max": 8, 
-          "step": 1,
-          "display": "silder",
-          'tooltip': "Number of digits used for the image counter. `3` = image_001.png, based on highest number in the subfolder, ignores gaps. **Can be disabled** when == 0"
-         }),
-        'counter_position': (self.counter_positions, {'default': self.counter_position, 'tooltip': "Image counter postition: image_001.png or 001_image.png"}),
-        'one_counter_per_folder': ('BOOLEAN', {'default': self.one_counter_per_folder, 'tooltip': "deprecated but I cannot remove it of all your saved prompts will break"}),
-        'image_preview': ('BOOLEAN', {'default': self.image_preview, 'tooltip': "Turns the image preview on and off"}),
-        'output_ext': (self.output_exts, {'default': self.output_ext, 'tooltip': "File extension: WEBP by default, AVIF, PNG, JXL, JPG, etc"}),
-        'quality': ('INT', {
-          "default": self.quality, 
-          "min": 0, 
-          "max": 100, 
-          "step": 1,
-          "display": "silder",
-          'tooltip': "Quality for JPEG/JXL/WebP/AVIF/J2K formats; Quality is relative to each format. \n* Example: AVIF 60 is same quality as WebP 90. \n* PNG compression is fixed at 4 and not affected by this. PNG compression times skyrocket above level 4 for zero benefits on filesize."
-        }),
-        'named_keys': ('BOOLEAN', {'default': self.named_keys, 'tooltip': "Prefix each value by its key name. Example: prefix-seed=123456-width=1024-cfg=5.0-0001.avif"}),
-      },
-      'optional': {
-        'positive_text_opt': ('STRING', {'forceInput': True, 'tooltip': "Optional string saved as `positive_text_opt` in job.json when `save_job_data`=True"}),
-        'negative_text_opt': ('STRING', {'forceInput': True, 'tooltip': "Optional string saved as `negative_text_opt` in job.json when `save_job_data`=True"}),
-                    },
-      'hidden': {'prompt': 'PROMPT', 'extra_pnginfo': 'EXTRA_PNGINFO'},
-    }
 
   # This class serves no purpose, it can only test 1 element. you always get all errors even if only one element is bad
   # @classmethod
