@@ -19,12 +19,12 @@ Supports those extensions: **JXL AVIF WebP jpg jpeg j2k jp2 png gif tiff bmp**
 <br><br>
 </p>
 
-## Parameters / Usage
+## Parameters / Reserved Keywords
 
 | Attribute | Description |
 | --- | --- |
-| `filename_prefix` |  Fixed string prefixed to file name. |
-| `filename_keys` | Comma separated string with sampler parameters to add to filename. E.g: `sampler_name, scheduler, cfg, denoise` Added to filename in written order. `resolution`  also works. `vae_name` `model_name` (upscale model), `ckpt_name` (checkpoint) are others that should work. Here you can try any parameter name of any node. As long as the parameter has the same variable name defined in the `prompt` object, they should work. The same applies to `foldername_keys`. |
+| `filename_prefix` |  **Static string** prefixed to file name. |
+| `filename_keys` | Comma separated string with sampler parameters to add to filename. E.g: `sampler_name, scheduler, cfg, denoise` Added to filename in written order. `vae_name` `model_name` (upscale model), `ckpt_name` (checkpoint) are others that should work. Here you can try any parameter name of any node. As long as the parameter has the same variable name defined in the `prompt` object, they should work. The same applies to `foldername_keys`. |
 | `foldername_prefix` | Fixed string prefixed to subfolders. |
 | `foldername_keys` | Same rules as for `filename_keys`. Create subfolders by using `/` or `../` etc. |
 | `delimiter` | **now a free field** Delimiter = any string you like. You can also use `/` to create subfolders. |
@@ -38,11 +38,13 @@ Supports those extensions: **JXL AVIF WebP jpg jpeg j2k jp2 png gif tiff bmp**
 | `image_preview` | Turns the image preview on and off. |
 | `output_ext` | File extension: WEBP by default, AVIF, PNG, JXL, JPG, etc. |
 | `quality` |  Quality for JPEG/JXL/WebP/AVIF/J2K formats; Quality is relative to each format. Example: AVIF 60 is same quality as WebP 90. PNG compression is fixed at 4 and not affected by this. PNG compression times skyrocket above level 4 for zero benefits on filesize. |
+| `resolution` |  Saved image reolution in format `000x000` (pixels).
 | `named_keys` |  Prefix each value by its key name. Example: prefix-seed=123456-width=1024-cfg=5.0-0001.avif |
 
-
-- Unknown key names in `filename_keys` and `foldername_keys` are treated as fixed strings
-  - if you enter `wrongNumber.attribute`, you will get `attribute` in your filename.
+- ANY other keyword that exist as a field name in a widget will be resolved.
+  - That is why I do not list all common keywords like `ckpt_name` etc, as they are virtually infinite and exist only within your workflow.
+- Unknown key names not found in any widget's fields are treated as fixed strings
+  - if you enter `wrongNumber.attribute`, you will also get `attribute` as a fixed string.
 - Datetime UNIX format is now included! `%Y-%m-%d` or `%F` etc: see [unix datetime formats](https://www.man7.org/linux/man-pages/man1/date.1.html)
 - default it output only the **name** for `ckpt_name` / `control_net_name` / `lora_name` not the **path**
   - use `ckpt_path` / `control_net_path` / `lora_path` to get the same subfolders as your models
@@ -109,6 +111,12 @@ There is a requirements.txt that will take care of that, but just in case:
 ```
 pip install numpy pillow pillow-avif-plugin pillow-jxl-plugin
 ```
+
+### Tested on / up to:
+* python 3.10.6
+* pytorch 2.5.1+cu124
+* ComfyUI v0.3.12-1-g7fc3ccdc | Released on '2025-01-16'
+
 
 ### Manual Download
 1. Open a terminal inside the 'custom_nodes' folder located in your ComfyUI installation dir
@@ -215,6 +223,10 @@ TODO:
 - [x] PIL.Image doesn't respect compress_level value and always output max 9 compressed images -> when optimize_image = True! So we turn that off for PNG
 - [x] TODO: test import cv2 / OpenCV: https://github.com/python-pillow/Pillow/issues/5986 -> not faster then PIL
 
+
+### release 2.87 💾
+- finally! right-click any node with IMAGE output adds "Add SaveImageExtended" option
+- upgraded purify.min.js
 
 ### release 2.86 💾
 - bugfix in counter_digits which does not accept 0 to disable counter

@@ -14,7 +14,7 @@ import numpy
 
 # import cv2  # not faster then PIL
 
-version = 2.86
+version = 2.87
 
 avif_supported = False
 jxl_supported = False
@@ -33,8 +33,9 @@ else:
   avif_supported = True
 
 # Jxl requires jxlpy wheel to be compiled, and a valid MSVC environment, which is complex task
+# Therefore we use pillow_jxl which makes more sense
 try:
-  # jxlpy is in early stages of development. None one has ever compiled it on Windows AFAIK
+  # jxlpy is in early stages of development. No one has ever compiled it on Windows in 2025 AFAIK, please prove me wrong
   # from jxlpy import JXLImagePlugin
   # from imagecodecs import (jpegxl_encode, jpegxl_decode, jpegxl_check, jpegxl_version, JPEGXL)
   import pillow_jxl
