@@ -45,7 +45,7 @@ class SaveWebpAvif:
 - %F = %Y-%m-%d = 2024-05-22
 - %H-%M-%S = 09-13-58
 
-# WEBP "quality" settings guide:
+# WebP "quality" settings guide:
 - 100 = Lossless. (filesize: 100%)
 -   98 = High. (filesize: ~31%)
 -   94 = Medium. (filesize: ~22%)
@@ -81,7 +81,7 @@ class SaveWebpAvif:
   print(f"\033[92m[save_webp_avif]\033[0m version: {version}\033[0m")
   # if pillow_avif not in sys.modules:
   if avif_supported:
-    output_formats.insert(0, '.avif')
+    output_formats.insert(1, '.avif')
 
   def __init__(self):
     self.output_dir = folder_paths.get_output_directory()
@@ -615,5 +615,5 @@ NODE_CLASS_MAPPINGS = {
 
 
 NODE_DISPLAY_NAME_MAPPINGS = {
-  'SaveWebpAvif': '💾 Save Webp Avif',
+  'SaveWebpAvif': '💾 Save WebP AVIF',
 }
