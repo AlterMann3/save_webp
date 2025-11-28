@@ -1,13 +1,8 @@
-# Customize the folder, sub-folders, and filenames of your images! 
-# Save data about the generated job (sampler, prompts, models) as entries in a `json` (text) file, in each folder.
-# Use the values of ANY node's widget, by simply adding its badge number in the form _id.widget_name_: 
-# Oh btw... also saves your output as **WebP** or **JPEG**... And yes the prompt is included :) ComfyUI can load it but a PR approval is needed.
-
 """
 @author: AudioscavengeR
-@title: Save Webp Avif
-@nickname: Save Webp Avif
-@description: 1 custom node to save your pictures in .webp or .avif formats.
+@title: Save WebP AVIF
+@nickname: Save WebP AVIF
+@description: 1 custom node to save your images in WebP or AVIF formats.
 """
 
 
@@ -25,6 +20,6 @@ if hasattr(PromptServer, "instance"):
   # NOTE: we add an extra static path to avoid comfy mechanism
   # that loads every script in web.
   PromptServer.instance.app.add_routes(
-      [web.static("/save_image_extended", (Path(__file__).parent.absolute() / "assets").as_posix())]
+      [web.static("/save_webp_avif", (Path(__file__).parent.absolute() / "assets").as_posix())]
   )
 
