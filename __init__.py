@@ -5,13 +5,13 @@
 
 """
 @author: AudioscavengeR
-@title: Save Image Extended
-@nickname: Save Image Extended
-@description: 1 custom node to save your pictures in various folders and formats.
+@title: Save Webp Avif
+@nickname: Save Webp Avif
+@description: 1 custom node to save your pictures in .webp or .avif formats.
 """
 
 
-from .save_image_extended import NODE_CLASS_MAPPINGS, NODE_DISPLAY_NAME_MAPPINGS
+from .save_webp_avif import NODE_CLASS_MAPPINGS, NODE_DISPLAY_NAME_MAPPINGS
 
 WEB_DIRECTORY = "./web"
 
