@@ -22,7 +22,7 @@ except:
   print(f"\033[92m[save_webp_avif]\033[0m AVIF is not supported. To add it: pip install pillow pillow-avif-plugin\033[0m") 
   pass
 else:
-  print(f"\033[92m[save_webp_avif] AVIF is supported! Woohoo!\033[0m") 
+  print(f"\033[92m[save_webp_avif] AVIF is supported!\033[0m") 
   avif_supported = True
 
 
@@ -73,15 +73,15 @@ class SaveWebpAvif:
   one_counter_per_folder  = True
   image_preview           = True
   extToRemove             = ['.safetensors', '.ckpt', '.pt', '.bin', '.pth']
-  output_ext              = '.webp'
-  output_exts             = ['.webp']
+  output_format           = '.webp'
+  output_formats          = ['.webp']
   quality                 = 86
 
 
   print(f"\033[92m[save_webp_avif]\033[0m version: {version}\033[0m")
   # if pillow_avif not in sys.modules:
   if avif_supported:
-    output_exts.insert(0, '.avif')
+    output_formats.insert(0, '.avif')
 
   def __init__(self):
     self.output_dir = folder_paths.get_output_directory()
@@ -108,7 +108,7 @@ class SaveWebpAvif:
       'required': {
         'images': ('IMAGE', ),
         'filename_prefix': ('STRING', {'default': self.filename_prefix, 'multiline': False}),
-        'output_ext': (self.output_exts, {'default': self.output_ext}),
+        'output_format': (self.output_formats, {'default': self.output_format}),
         'quality': ('INT', {
           "default": self.quality, 
           "min": 1, 
@@ -150,19 +150,19 @@ class SaveWebpAvif:
   
   
   # Get current counter number from file names
-  def get_latest_counter(self, one_counter_per_folder, folder_path, filename_prefix, counter_digits=2, counter_position='last', output_ext='.webp'):
+  def get_latest_counter(self, one_counter_per_folder, folder_path, filename_prefix, counter_digits=2, counter_position='last', output_format='.webp'):
     counter = 1
     if not os.path.exists(folder_path):
         print(f"SaveWebpAvif {version} error: Folder {folder_path} does not exist, starting counter at 1.")
         return counter
 
     try:
-        files = [file for file in os.listdir(folder_path) if file.startswith(filename_prefix) and file.endswith(output_ext)]
+        files = [file for file in os.listdir(folder_path) if file.startswith(filename_prefix) and file.endswith(output_format)]
         counters = []
 
         # Sayaç değerlerini çıkar
         for file in files:
-            match = re.match(rf"{re.escape(filename_prefix)}.*_(\d{{{counter_digits}}}){re.escape(output_ext)}", file)
+            match = re.match(rf"{re.escape(filename_prefix)}.*_(\d{{{counter_digits}}}){re.escape(output_format)}", file)
             if match:
                 counters.append(int(match.group(1)))
 
@@ -509,23 +509,23 @@ class SaveWebpAvif:
   
   def save_image(self, image_path, img, prompt, save_metadata=save_metadata, extra_pnginfo=None, quality=75):
     # print(f"debug save_images: image_path={image_path}")
-    output_ext = os.path.splitext(os.path.basename(image_path))[1]
+    output_format = os.path.splitext(os.path.basename(image_path))[1]
     metadata = None
     kwargs = dict()
     
     # TODO: see if convert_hdr_to_8bit=False make a change
     
     # match is python 3.10+
-    if output_ext in ['.avif']:
+    if output_format in ['.avif']:
       if save_metadata: kwargs["exif"] = self.get_metadata_exif(img, prompt, extra_pnginfo)
       kwargs["quality"] = quality
       if quality == 100: kwargs["lossless"] = True
-    elif output_ext in ['.webp']:
+    elif output_format in ['.webp']:
       if save_metadata: kwargs["exif"] = self.get_metadata_exif(img, prompt, extra_pnginfo)
       kwargs["quality"] = quality
       if quality == 100: kwargs["lossless"] = True
     
-    # elif output_ext in ['.bmp']:
+    # elif output_format in ['.bmp']:
       # nothing to add
       
     # img.save(image_path, pnginfo=metadata, compress_level=self.png_compress_level)
@@ -550,7 +550,7 @@ class SaveWebpAvif:
     counter_position='last',
     one_counter_per_folder=True,
     image_preview=True,
-    output_ext='.webp',
+    output_format='.webp',
     negative_text_opt=None,
     positive_text_opt=None,
     extra_pnginfo=None,
@@ -577,8 +577,7 @@ class SaveWebpAvif:
     output_path = os.path.join(full_output_folder, custom_foldername)
     os.makedirs(output_path, exist_ok=True)
 
-    # Sayaç mantığını uygula
-    counter = self.get_latest_counter(one_counter_per_folder, output_path, custom_filename, counter_digits, counter_position, output_ext)
+    counter = self.get_latest_counter(one_counter_per_folder, output_path, custom_filename, counter_digits, counter_position, output_format)
 
     results = list()
     for image in images:
@@ -586,9 +585,9 @@ class SaveWebpAvif:
         img = Image.fromarray(np.clip(i, 0, 255).astype(np.uint8))
 
         if counter_position == 'last':
-            file = f'{custom_filename}{delimiter}{counter:0{counter_digits}}{output_ext}'
+            file = f'{custom_filename}{delimiter}{counter:0{counter_digits}}{output_format}'
         else:
-            file = f'{counter:0{counter_digits}}{delimiter}{custom_filename}{output_ext}'
+            file = f'{counter:0{counter_digits}}{delimiter}{custom_filename}{output_format}'
 
         image_path = os.path.join(output_path, file)
         self.save_image(image_path, img, prompt, save_metadata, extra_pnginfo, quality)
@@ -601,7 +600,7 @@ class SaveWebpAvif:
         counter += 1
 
     if save_job_data != 'disabled' and job_data_per_image:
-        self.save_job_to_json(save_job_data, prompt, filename_prefix, positive_text_opt, negative_text_opt, job_custom_text, resolution, output_path, f'{file.removesuffix(output_ext)}.json', timestamp)
+        self.save_job_to_json(save_job_data, prompt, filename_prefix, positive_text_opt, negative_text_opt, job_custom_text, resolution, output_path, f'{file.removesuffix(output_format)}.json', timestamp)
     elif save_job_data != 'disabled' and not job_data_per_image:
         self.save_job_to_json(save_job_data, prompt, filename_prefix, positive_text_opt, negative_text_opt, job_custom_text, resolution, output_path, 'jobs.json', timestamp)
 
