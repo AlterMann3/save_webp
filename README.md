@@ -1,2 +1,4 @@
-Mofied node from "Save Image Extended for ComfyUI" (https://github.com/audioscavenger/save-image-extended-comfyui).
+Mofied node from:
+"Save Image Extended for ComfyUI"
+(https://github.com/audioscavenger/save-image-extended-comfyui)
 ----
