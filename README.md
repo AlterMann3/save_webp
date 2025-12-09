@@ -1,4 +1,4 @@
-Simple WebP image output node for ComfyUI.
+Simple WebP image output node for ComfyUI
 ---
 
 Installation for portable ComfyUI:
