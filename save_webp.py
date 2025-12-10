@@ -14,7 +14,6 @@ import piexif.helper
 version = 1.00
 
 
-
 from PIL import Image, ExifTags
 from PIL.PngImagePlugin import PngInfo
 
@@ -65,7 +64,7 @@ class SaveWebp:
   quality                 = 86
 
 
-  print(f"\033[92m[save_webp]\033[0m version: {version}\033[0m")
+#  print(f"\033[92m[save_webp]\033[0m version: {version}\033[0m")
 
 
   def __init__(self):
