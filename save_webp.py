@@ -116,8 +116,8 @@ class SaveWebp:
         'save_metadata': self.save_metadata,
         'counter_position': self.counter_position,
         'one_counter_per_folder': self.one_counter_per_folder,
-        'positive_text_opt': '',  # Boş string default
-        'negative_text_opt': '',  # Boş string default
+        'positive_text_opt': '',  
+        'negative_text_opt': '',  
         'image_preview': ('BOOLEAN', {'default': self.image_preview}),
         },
      }
